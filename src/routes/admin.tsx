@@ -182,7 +182,6 @@ function AdminPage() {
   const handleStatusChange = (id: string, newStatus: ClientInquiry["status"]) => {
     const updated = updateInquiryStatus(id, newStatus);
     setInquiries(updated);
-    if (selectedInquiry && selectedInquiry.id === id) {
       setSelectedInquiry({ ...selectedInquiry, status: newStatus });
     }
     toast.success(`Inquiry ${id} marked as ${newStatus}`);
@@ -199,8 +198,7 @@ function AdminPage() {
     }
 
     setDeleteConfirmId(null);
-    const updated = deleteInquiry(id);
-    setInquiries(updated);
+    void deleteInquiry(id).then(setInquiries);
     if (selectedInquiry && selectedInquiry.id === id) {
       setSelectedInquiry(null);
     }
@@ -442,7 +440,7 @@ function AdminPage() {
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 hidden sm:block">
-              Logged in as <span className="text-white font-medium">{AUTH_USERNAME}</span>
+              Logged in as <span className="text-white font-medium">{usernameInput || "admin"}</span>
             </p>
           </div>
         </div>
