@@ -180,8 +180,8 @@ function AdminPage() {
   };
 
   const handleStatusChange = (id: string, newStatus: ClientInquiry["status"]) => {
-    const updated = updateInquiryStatus(id, newStatus);
-    setInquiries(updated);
+    void updateInquiryStatus(id, newStatus).then(setInquiries);
+    if (selectedInquiry && selectedInquiry.id === id) {
       setSelectedInquiry({ ...selectedInquiry, status: newStatus });
     }
     toast.success(`Inquiry ${id} marked as ${newStatus}`);
