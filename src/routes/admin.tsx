@@ -35,6 +35,7 @@ import {
   getInquiries,
   fetchServerInquiries,
   updateInquiryStatus,
+  updateInquiryNotes,
   deleteInquiry,
   authenticateAdmin,
   logoutAdmin,
@@ -70,6 +71,8 @@ function AdminPage() {
   const [inquiries, setInquiries] = useState<ClientInquiry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "new" | "contacted" | "archived">("all");
+  const [serviceFilter, setServiceFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "name">("newest");
   const [selectedInquiry, setSelectedInquiry] = useState<ClientInquiry | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -179,6 +182,17 @@ function AdminPage() {
     toast.info("Logged out of Admin Portal.");
   };
 
+  const handleNotesSave = (id: string, notes: string) => {
+    const current = inquiries.find((i) => i.id === id);
+    if ((current?.notes ?? "") === notes) return;
+    const updated = updateInquiryNotes(id, notes);
+    setInquiries(updated);
+    if (selectedInquiry && selectedInquiry.id === id) {
+      setSelectedInquiry({ ...selectedInquiry, notes });
+    }
+    toast.success("Note saved");
+  };
+
   const handleStatusChange = (id: string, newStatus: ClientInquiry["status"]) => {
     void updateInquiryStatus(id, newStatus).then(setInquiries);
     if (selectedInquiry && selectedInquiry.id === id) {
@@ -261,7 +275,7 @@ function AdminPage() {
 
   // Filtered inquiries
   const filtered = useMemo(() => {
-    return inquiries.filter((inq) => {
+    const list = inquiries.filter((inq) => {
       const matchSearch =
         inq.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         inq.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -270,9 +284,20 @@ function AdminPage() {
         inq.services.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchStatus = statusFilter === "all" ? true : inq.status === statusFilter;
-      return matchSearch && matchStatus;
+      const matchService = serviceFilter === "all" ? true : inq.services.includes(serviceFilter);
+      return matchSearch && matchStatus && matchService;
     });
-  }, [inquiries, searchQuery, statusFilter]);
+    return [...list].sort((a, b) => {
+      if (sortBy === "name") return a.fullName.localeCompare(b.fullName);
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return sortBy === "oldest" ? diff : -diff;
+    });
+  }, [inquiries, searchQuery, statusFilter, serviceFilter, sortBy]);
+
+  const allServices = useMemo(
+    () => Array.from(new Set(inquiries.flatMap((i) => i.services).filter(Boolean))).sort(),
+    [inquiries],
+  );
 
   const newCount = useMemo(() => inquiries.filter((i) => i.status === "new").length, [inquiries]);
   const contactedCount = useMemo(
@@ -566,6 +591,33 @@ function AdminPage() {
                 )}
               </button>
             ))}
+          </div>
+
+          {/* Service filter & sort */}
+          <div className="flex items-center gap-2">
+            <select
+              aria-label="Filter by service"
+              value={serviceFilter}
+              onChange={(e) => setServiceFilter(e.target.value)}
+              className="px-3 py-2 rounded-xl bg-[#1A1A20] border border-white/10 text-white text-xs outline-none focus:border-[#9AFD0D] max-w-[160px]"
+            >
+              <option value="all">All services</option>
+              {allServices.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Sort inquiries"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="px-3 py-2 rounded-xl bg-[#1A1A20] border border-white/10 text-white text-xs outline-none focus:border-[#9AFD0D]"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="name">Name A–Z</option>
+            </select>
           </div>
 
           {/* Search Input */}
@@ -863,6 +915,21 @@ function AdminPage() {
                     <strong className="text-white">{selectedInquiry.hearAbout}</strong>
                   </div>
                 )}
+
+                {/* Private admin notes */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
+                    Private Notes
+                  </h4>
+                  <textarea
+                    key={selectedInquiry.id}
+                    defaultValue={selectedInquiry.notes ?? ""}
+                    onBlur={(e) => handleNotesSave(selectedInquiry.id, e.target.value)}
+                    placeholder="Add internal notes (only visible to admins). Saves when you click away."
+                    rows={4}
+                    className="w-full p-3 rounded-2xl bg-[#121217] border border-white/10 text-neutral-200 text-sm placeholder:text-neutral-500 focus:border-[#9AFD0D] outline-none transition-all resize-y"
+                  />
+                </div>
               </div>
             ) : (
               <div className="p-12 text-center rounded-3xl border border-white/10 bg-[#16161B]/60 sticky top-24">

@@ -206,12 +206,11 @@ export async function fetchServerInquiries(token?: string | null): Promise<Clien
         for (const item of local) map.set(item.id, item);
         for (const item of cleanedServer) {
           const existing = map.get(item.id);
-          // Preserve local status updates if already modified locally
-          if (existing && existing.status !== item.status) {
-            map.set(item.id, { ...item, status: existing.status });
-          } else {
-            map.set(item.id, item);
-          }
+          // Preserve local status updates and private notes
+          map.set(
+            item.id,
+            existing ? { ...item, status: existing.status, notes: existing.notes } : item,
+          );
         }
         const merged = Array.from(map.values()).sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -282,6 +281,21 @@ export async function saveInquiry(
   }
 
   return newRecord;
+}
+
+/**
+ * Save private admin notes for an inquiry (stored in this browser)
+ */
+export function updateInquiryNotes(id: string, notes: string): ClientInquiry[] {
+  const updated = getInquiries().map((item) =>
+    item.id === id ? { ...item, notes: notes.slice(0, 5000) } : item,
+  );
+  memoryInquiries = updated;
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent("six2eight_inquiry_updated"));
+  }
+  return updated;
 }
 
 /**
