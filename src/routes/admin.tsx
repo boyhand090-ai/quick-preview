@@ -42,6 +42,7 @@ import {
   type ClientInquiry,
 } from "@/lib/inbox";
 import { cn } from "@/lib/utils";
+import { filterAndSortInquiries } from "@/lib/inquiry-filters";
 
 const title = "Client Inquiries Admin Portal — six2eight";
 const description = "Private administrative portal for managing client submissions and inquiries.";
@@ -274,25 +275,16 @@ function AdminPage() {
   };
 
   // Filtered inquiries
-  const filtered = useMemo(() => {
-    const list = inquiries.filter((inq) => {
-      const matchSearch =
-        inq.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inq.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (inq.company && inq.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (inq.message && inq.message.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        inq.services.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const matchStatus = statusFilter === "all" ? true : inq.status === statusFilter;
-      const matchService = serviceFilter === "all" ? true : inq.services.includes(serviceFilter);
-      return matchSearch && matchStatus && matchService;
-    });
-    return [...list].sort((a, b) => {
-      if (sortBy === "name") return a.fullName.localeCompare(b.fullName);
-      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      return sortBy === "oldest" ? diff : -diff;
-    });
-  }, [inquiries, searchQuery, statusFilter, serviceFilter, sortBy]);
+  const filtered = useMemo(
+    () =>
+      filterAndSortInquiries(inquiries, {
+        search: searchQuery,
+        status: statusFilter,
+        service: serviceFilter,
+        sortBy,
+      }),
+    [inquiries, searchQuery, statusFilter, serviceFilter, sortBy],
+  );
 
   const allServices = useMemo(
     () => Array.from(new Set(inquiries.flatMap((i) => i.services).filter(Boolean))).sort(),
