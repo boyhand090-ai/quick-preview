@@ -284,6 +284,74 @@ export default {
     }
 
     // -------------------------------------------------------------
+    // API: Send email to a client via connected Gmail (ADMIN ONLY)
+    // -------------------------------------------------------------
+    if (url.pathname === "/api/admin/send-email") {
+      if (request.method !== "POST") {
+        return jsonResponse({ error: "Method not allowed" }, 405);
+      }
+      const auth = verifyAdminToken(request);
+      if (!auth.valid) {
+        return jsonResponse({ error: "Unauthorized: please log in to the admin portal again." }, 401);
+      }
+      let body: Record<string, unknown>;
+      try {
+        body = (await request.json()) as Record<string, unknown>;
+      } catch {
+        return jsonResponse({ error: "Invalid request body" }, 400);
+      }
+      const to = String(body["to"] ?? "").trim();
+      const subject = String(body["subject"] ?? "").trim().slice(0, 300);
+      const message = String(body["message"] ?? "").slice(0, 20000);
+      if (!/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(to) || to.length > 200) {
+        return jsonResponse({ error: "Please enter a valid client email address." }, 400);
+      }
+      if (!subject || /[\r\n]/.test(subject)) {
+        return jsonResponse({ error: "Please enter a subject." }, 400);
+      }
+      if (!message.trim()) {
+        return jsonResponse({ error: "Please write a message." }, 400);
+      }
+      const lovableKey = process.env["LOVABLE_API_KEY"];
+      const gmailKey = process.env["GOOGLE_MAIL_API_KEY"];
+      if (!lovableKey || !gmailKey) {
+        return jsonResponse({ error: "Gmail is not connected." }, 500);
+      }
+      const b64 = (s: string) =>
+        btoa(Array.from(new TextEncoder().encode(s), (b) => String.fromCharCode(b)).join(""));
+      const header = (v: string) => (/^[\x00-\x7F]*$/.test(v) ? v : `=?UTF-8?B?${b64(v)}?=`);
+      const mime = [
+        `To: ${to}`,
+        `Subject: ${header(subject)}`,
+        "MIME-Version: 1.0",
+        'Content-Type: text/plain; charset="UTF-8"',
+        "Content-Transfer-Encoding: base64",
+        "",
+        b64(message),
+      ].join("\r\n");
+      const raw = b64(mime).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      const res = await fetch(
+        "https://connector-gateway.lovable.dev/google_mail/gmail/v1/users/me/messages/send",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "X-Connection-Api-Key": gmailKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ raw }),
+        },
+      );
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error(`Gmail send failed [${res.status}]: ${errText}`);
+        return jsonResponse({ error: `Gmail could not send the email (${res.status}).` }, 502);
+      }
+      const sent = (await res.json()) as { id?: string };
+      return jsonResponse({ ok: true, id: sent.id ?? null });
+    }
+
+    // -------------------------------------------------------------
     // API: Client Inquiries API (/api/inquiries)
     // -------------------------------------------------------------
     if (url.pathname === "/api/inquiries") {
