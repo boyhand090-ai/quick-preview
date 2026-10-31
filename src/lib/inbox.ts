@@ -2,6 +2,7 @@ export type ClientInquiry = {
   id: string;
   fullName: string;
   email: string;
+  phone?: string;
   company?: string;
   website?: string;
   services: string[];
@@ -239,6 +240,7 @@ export async function saveInquiry(
     ...input,
     fullName: cleanString(input.fullName, 120) || "Valued Client",
     email: cleanString(input.email, 150) || "",
+    phone: cleanString(input.phone, 50),
     company: cleanString(input.company, 150),
     website: cleanString(input.website, 200),
     message: cleanString(input.message, 3000),

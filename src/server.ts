@@ -52,6 +52,7 @@ export type LiveInquiryRecord = {
   id: string;
   fullName: string;
   email: string;
+  phone?: string;
   company?: string;
   website?: string;
   services?: string[];
@@ -292,7 +293,10 @@ export default {
       }
       const auth = verifyAdminToken(request);
       if (!auth.valid) {
-        return jsonResponse({ error: "Unauthorized: please log in to the admin portal again." }, 401);
+        return jsonResponse(
+          { error: "Unauthorized: please log in to the admin portal again." },
+          401,
+        );
       }
       let body: Record<string, unknown>;
       try {
@@ -301,7 +305,9 @@ export default {
         return jsonResponse({ error: "Invalid request body" }, 400);
       }
       const to = String(body["to"] ?? "").trim();
-      const subject = String(body["subject"] ?? "").trim().slice(0, 300);
+      const subject = String(body["subject"] ?? "")
+        .trim()
+        .slice(0, 300);
       const message = String(body["message"] ?? "").slice(0, 20000);
       if (!/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(to) || to.length > 200) {
         return jsonResponse({ error: "Please enter a valid client email address." }, 400);
@@ -319,7 +325,8 @@ export default {
       }
       const b64 = (s: string) =>
         btoa(Array.from(new TextEncoder().encode(s), (b) => String.fromCharCode(b)).join(""));
-      const header = (v: string) => (/^[\x00-\x7F]*$/.test(v) ? v : `=?UTF-8?B?${b64(v)}?=`);
+      const isAscii = (s: string) => [...s].every((c) => (c.codePointAt(0) ?? 0) <= 0x7f);
+      const header = (v: string) => (isAscii(v) ? v : `=?UTF-8?B?${b64(v)}?=`);
       const mime = [
         `To: ${to}`,
         `Subject: ${header(subject)}`,
@@ -431,6 +438,7 @@ export default {
                 : `INQ-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
             fullName: sanitizeInput(rawName, 120),
             email: sanitizeInput(rawEmail, 150),
+            phone: body.phone ? sanitizeInput(String(body.phone), 50) : undefined,
             company: body.company ? sanitizeInput(body.company, 150) : undefined,
             website: body.website ? sanitizeInput(body.website, 200) : undefined,
             services: Array.isArray(body.services)

@@ -29,6 +29,7 @@ import {
   MessageSquare,
   ShieldCheck,
   ChevronRight,
+  Phone,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import {
@@ -457,7 +458,8 @@ function AdminPage() {
               </span>
             </div>
             <p className="text-[11px] text-neutral-400 hidden sm:block">
-              Logged in as <span className="text-white font-medium">{usernameInput || "admin"}</span>
+              Logged in as{" "}
+              <span className="text-white font-medium">{usernameInput || "admin"}</span>
             </p>
           </div>
         </div>
@@ -792,7 +794,7 @@ function AdminPage() {
                   </div>
                 </div>
 
-                {/* Contact Actions: Email & Website */}
+                {/* Contact Actions: Email, Phone & Budget */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3.5 rounded-2xl bg-[#1A1A22] border border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -828,6 +830,45 @@ function AdminPage() {
                       </a>
                     </div>
                   </div>
+
+                  {/* Client Phone Number Card */}
+                  {selectedInquiry.phone ? (
+                    <div className="p-3.5 rounded-2xl bg-[#1A1A22] border border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Phone className="size-4 text-[#9AFD0D] shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase font-bold text-neutral-500">
+                            Phone / WhatsApp
+                          </div>
+                          <div className="text-xs font-semibold text-white truncate font-mono">
+                            {selectedInquiry.phone}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 ml-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectedInquiry.phone) {
+                              navigator.clipboard.writeText(selectedInquiry.phone);
+                              toast.success("Phone number copied!");
+                            }
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white"
+                          title="Copy phone number"
+                        >
+                          <Copy className="size-3.5" />
+                        </button>
+                        <a
+                          href={`tel:${selectedInquiry.phone.replace(/\s+/g, "")}`}
+                          className="p-1.5 rounded-lg bg-[#9AFD0D] text-black font-semibold hover:bg-[#8cee07]"
+                          title="Call phone number"
+                        >
+                          <Phone className="size-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="p-3.5 rounded-2xl bg-[#1A1A22] border border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2.5 min-w-0">

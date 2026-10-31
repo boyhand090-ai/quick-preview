@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import {
   ArrowUpRight,
   Mail,
@@ -17,9 +17,13 @@ import {
   Star,
   Users2,
   Headphones,
+  Phone,
+  Plus,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
-import { Preloader } from "@/components/site/preloader";
+import { motion } from "motion/react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { Reveal } from "@/components/site/reveal";
@@ -27,6 +31,56 @@ import { Magnetic } from "@/components/site/magnetic";
 import { CALENDLY } from "@/data/site";
 import { cn } from "@/lib/utils";
 import { saveInquiry } from "@/lib/inbox";
+
+export type CountryCode = {
+  name: string;
+  code: string;
+  flag: string;
+  dialCode: string;
+};
+
+export const countryCodes: CountryCode[] = [
+  { name: "United States", code: "US", flag: "🇺🇸", dialCode: "+1" },
+  { name: "United Kingdom", code: "GB", flag: "🇬🇧", dialCode: "+44" },
+  { name: "Canada", code: "CA", flag: "🇨🇦", dialCode: "+1" },
+  { name: "Australia", code: "AU", flag: "🇦🇺", dialCode: "+61" },
+  { name: "United Arab Emirates", code: "AE", flag: "🇦🇪", dialCode: "+971" },
+  { name: "Saudi Arabia", code: "SA", flag: "🇸🇦", dialCode: "+966" },
+  { name: "Pakistan", code: "PK", flag: "🇵🇰", dialCode: "+92" },
+  { name: "India", code: "IN", flag: "🇮🇳", dialCode: "+91" },
+  { name: "Germany", code: "DE", flag: "🇩🇪", dialCode: "+49" },
+  { name: "France", code: "FR", flag: "🇫🇷", dialCode: "+33" },
+  { name: "Singapore", code: "SG", flag: "🇸🇬", dialCode: "+65" },
+  { name: "Japan", code: "JP", flag: "🇯🇵", dialCode: "+81" },
+  { name: "Netherlands", code: "NL", flag: "🇳🇱", dialCode: "+31" },
+  { name: "Switzerland", code: "CH", flag: "🇨🇭", dialCode: "+41" },
+  { name: "New Zealand", code: "NZ", flag: "🇳🇿", dialCode: "+64" },
+  { name: "Ireland", code: "IE", flag: "🇮🇪", dialCode: "+353" },
+  { name: "Spain", code: "ES", flag: "🇪🇸", dialCode: "+34" },
+  { name: "Italy", code: "IT", flag: "🇮🇹", dialCode: "+39" },
+  { name: "Sweden", code: "SE", flag: "🇸🇪", dialCode: "+46" },
+  { name: "Norway", code: "NO", flag: "🇳🇴", dialCode: "+47" },
+  { name: "Denmark", code: "DK", flag: "🇩🇰", dialCode: "+45" },
+  { name: "Poland", code: "PL", flag: "🇵🇱", dialCode: "+48" },
+  { name: "Turkey", code: "TR", flag: "🇹🇷", dialCode: "+90" },
+  { name: "Qatar", code: "QA", flag: "🇶🇦", dialCode: "+974" },
+  { name: "Kuwait", code: "KW", flag: "🇰🇼", dialCode: "+965" },
+  { name: "Bahrain", code: "BH", flag: "🇧🇭", dialCode: "+973" },
+  { name: "Oman", code: "OM", flag: "🇴🇲", dialCode: "+968" },
+  { name: "Malaysia", code: "MY", flag: "🇲🇾", dialCode: "+60" },
+  { name: "Indonesia", code: "ID", flag: "🇮🇩", dialCode: "+62" },
+  { name: "Philippines", code: "PH", flag: "🇵🇭", dialCode: "+63" },
+  { name: "South Africa", code: "ZA", flag: "🇿🇦", dialCode: "+27" },
+  { name: "Brazil", code: "BR", flag: "🇧🇷", dialCode: "+55" },
+  { name: "Mexico", code: "MX", flag: "🇲🇽", dialCode: "+52" },
+  { name: "Nigeria", code: "NG", flag: "🇳🇬", dialCode: "+234" },
+  { name: "Egypt", code: "EG", flag: "🇪🇬", dialCode: "+20" },
+  { name: "Kenya", code: "KE", flag: "🇰🇪", dialCode: "+254" },
+  { name: "Bangladesh", code: "BD", flag: "🇧🇩", dialCode: "+880" },
+  { name: "Vietnam", code: "VN", flag: "🇻🇳", dialCode: "+84" },
+  { name: "South Korea", code: "KR", flag: "🇰🇷", dialCode: "+82" },
+  { name: "China", code: "CN", flag: "🇨🇳", dialCode: "+86" },
+];
 
 const title = "Contact Us — six2eight Digital Growth Agency";
 const description =
@@ -99,9 +153,16 @@ const contactFaqs = [
 function ContactPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(countryCodes[0]!);
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>(["Web Development"]);
+  const [isCustomServiceOpen, setIsCustomServiceOpen] = useState(false);
+  const [customServiceInput, setCustomServiceInput] = useState("");
+  const [customServicesList, setCustomServicesList] = useState<string[]>([]);
   const [budget, setBudget] = useState("$25,000 – $50,000");
   const [timeline, setTimeline] = useState("1 – 2 Months");
   const [message, setMessage] = useState("");
@@ -111,10 +172,57 @@ function ContactPage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const countryTriggerRef = useRef<HTMLButtonElement>(null);
+
+  // Close country dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        countryDropdownRef.current &&
+        !countryDropdownRef.current.contains(e.target as Node) &&
+        countryTriggerRef.current &&
+        !countryTriggerRef.current.contains(e.target as Node)
+      ) {
+        setCountryDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredCountries = countryCodes.filter(
+    (c) =>
+      c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      c.dialCode.includes(countrySearch) ||
+      c.code.toLowerCase().includes(countrySearch.toLowerCase()),
+  );
+
   const toggleService = (srv: string) => {
     setSelectedServices((prev) =>
       prev.includes(srv) ? prev.filter((s) => s !== srv) : [...prev, srv],
     );
+  };
+
+  const handleAddCustomService = () => {
+    const trimmed = customServiceInput.trim();
+    if (!trimmed) {
+      toast.error("Please enter your custom service requirement.");
+      return;
+    }
+    if (!selectedServices.includes(trimmed)) {
+      setSelectedServices((prev) => [...prev, trimmed]);
+    }
+    if (!customServicesList.includes(trimmed)) {
+      setCustomServicesList((prev) => [...prev, trimmed]);
+    }
+    toast.success(`Custom service "${trimmed}" added!`);
+    setCustomServiceInput("");
+  };
+
+  const removeCustomService = (customSrv: string) => {
+    setSelectedServices((prev) => prev.filter((s) => s !== customSrv));
+    setCustomServicesList((prev) => prev.filter((s) => s !== customSrv));
   };
 
   const copyEmail = () => {
@@ -132,13 +240,24 @@ function ContactPage() {
     }
     setIsSubmitting(true);
 
+    const formattedPhone = phoneNumber.trim()
+      ? `${selectedCountry.dialCode} ${phoneNumber.trim()}`
+      : undefined;
+
+    // Include any typed custom service if user hasn't hit 'Add' yet
+    const finalServices = [...selectedServices];
+    if (customServiceInput.trim() && !finalServices.includes(customServiceInput.trim())) {
+      finalServices.push(customServiceInput.trim());
+    }
+
     try {
       saveInquiry({
         fullName: fullName.trim(),
         email: email.trim(),
+        phone: formattedPhone,
         company: company.trim() || undefined,
         website: website.trim() || undefined,
-        services: selectedServices,
+        services: finalServices.length > 0 ? finalServices : ["Web Development"],
         budget,
         timeline,
         message: message.trim() || undefined,
@@ -157,8 +276,12 @@ function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
-      <Preloader />
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="min-h-screen overflow-x-hidden bg-background text-foreground"
+    >
       <Header />
 
       <main id="main-content" className="relative pb-24 pt-32 sm:pt-40">
@@ -317,9 +440,14 @@ function ContactPage() {
 
                     {/* 1. Services Multi-Select Badges */}
                     <div>
-                      <label className="block text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        1. What services do you need?
-                      </label>
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-xs sm:text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                          1. What services do you need?
+                        </label>
+                        <span className="text-[11px] text-[#9AFD0D] font-medium hidden sm:inline">
+                          Select multiple or add custom
+                        </span>
+                      </div>
                       <div className="flex flex-wrap gap-2 sm:gap-2.5">
                         {serviceOptions.map((srv) => {
                           const active = selectedServices.includes(srv);
@@ -340,7 +468,91 @@ function ContactPage() {
                             </button>
                           );
                         })}
+
+                        {/* User-added Custom Services */}
+                        {customServicesList.map((customSrv) => (
+                          <div
+                            key={customSrv}
+                            className="rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold border border-primary bg-primary text-primary-foreground shadow-[0_0_16px_rgba(154,253,13,0.3)] flex items-center gap-2"
+                          >
+                            <span>{customSrv}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeCustomService(customSrv)}
+                              className="size-4 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-primary-foreground transition-colors cursor-pointer"
+                              title={`Remove ${customSrv}`}
+                            >
+                              <X className="size-2.5 stroke-[3]" />
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Custom Service Toggle Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomServiceOpen((prev) => !prev)}
+                          className={cn(
+                            "rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer border flex items-center gap-1.5",
+                            isCustomServiceOpen
+                              ? "border-primary bg-primary/20 text-[#9AFD0D] border-dashed shadow-[0_0_14px_rgba(154,253,13,0.25)]"
+                              : "border-dashed border-border/80 bg-surface/40 text-neutral-300 hover:border-primary hover:text-[#9AFD0D]",
+                          )}
+                        >
+                          <Sparkles className="size-3.5 text-[#9AFD0D]" />
+                          <span>+ Custom</span>
+                        </button>
                       </div>
+
+                      {/* Expandable Custom Service Text Input */}
+                      {isCustomServiceOpen && (
+                        <div className="mt-3.5 rounded-2xl border border-primary/40 bg-[#16161D] p-3.5 sm:p-4 shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
+                          <label className="block text-xs font-semibold text-white mb-1.5 flex items-center gap-1.5">
+                            <Sparkles className="size-3.5 text-[#9AFD0D]" />
+                            <span>Add Custom Service or Technology</span>
+                          </label>
+                          <div className="flex flex-col sm:flex-row gap-2.5">
+                            <input
+                              type="text"
+                              value={customServiceInput}
+                              onChange={(e) => setCustomServiceInput(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleAddCustomService();
+                                }
+                              }}
+                              placeholder="e.g. AI Autonomous Agents, Custom Web3 Integration..."
+                              className="w-full flex-1 rounded-xl bg-surface border border-border px-4 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddCustomService}
+                              className="pill inline-flex items-center justify-center gap-1.5 bg-primary px-5 py-2.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-[0_0_16px_rgba(154,253,13,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                            >
+                              <Plus className="size-3.5 stroke-[3]" />
+                              <span>Add Service</span>
+                            </button>
+                          </div>
+                          <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-muted-foreground">
+                            <span className="shrink-0 text-neutral-400">Suggestions:</span>
+                            {[
+                              "AI Autonomous Agents",
+                              "Custom Mobile App",
+                              "Web3 Integration",
+                              "Conversion Audit",
+                            ].map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setCustomServiceInput(s)}
+                                className="shrink-0 rounded-lg bg-surface/80 border border-white/5 px-2 py-0.5 text-neutral-300 hover:text-white hover:border-primary/40 transition-colors cursor-pointer"
+                              >
+                                +{s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* 2. Budget Selection */}
@@ -437,6 +649,108 @@ function ContactPage() {
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Contact Number with Country Code Dropdown with Flags */}
+                        <div className="relative">
+                          <label className="block text-xs font-medium text-neutral-400 mb-1.5 flex items-center justify-between">
+                            <span>
+                              Contact Number <span className="text-primary">*</span>
+                            </span>
+                            <span className="text-[10px] text-neutral-500">
+                              Includes Country Code
+                            </span>
+                          </label>
+                          <div className="relative flex rounded-xl bg-surface border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                            {/* Country Flag & Dial Code Selector */}
+                            <button
+                              type="button"
+                              ref={countryTriggerRef}
+                              onClick={() => setCountryDropdownOpen((prev) => !prev)}
+                              className="flex items-center gap-1.5 px-3 py-3 border-r border-border/80 bg-surface/80 hover:bg-surface text-xs font-semibold text-foreground transition-colors cursor-pointer shrink-0 rounded-l-xl"
+                              title={`${selectedCountry.name} (${selectedCountry.dialCode})`}
+                              aria-haspopup="listbox"
+                              aria-expanded={countryDropdownOpen}
+                            >
+                              <span className="text-base leading-none">{selectedCountry.flag}</span>
+                              <span className="text-neutral-200 font-mono text-xs">
+                                {selectedCountry.dialCode}
+                              </span>
+                              <ChevronDown
+                                className={cn(
+                                  "size-3 text-neutral-400 transition-transform",
+                                  countryDropdownOpen && "rotate-180",
+                                )}
+                              />
+                            </button>
+
+                            {/* Phone Input */}
+                            <div className="relative flex-1 flex items-center">
+                              <Phone className="size-3.5 text-neutral-500 absolute left-3 pointer-events-none" />
+                              <input
+                                type="tel"
+                                required
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="555 123 4567"
+                                className="w-full bg-transparent pl-8 pr-3 py-3 text-sm text-foreground placeholder:text-neutral-500 outline-none rounded-r-xl"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Country Code Dropdown Modal */}
+                          {countryDropdownOpen && (
+                            <div
+                              ref={countryDropdownRef}
+                              className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 max-h-64 overflow-y-auto rounded-2xl border border-white/10 bg-[#16161D] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 backdrop-blur-xl"
+                            >
+                              <div className="p-1 mb-1 border-b border-white/5">
+                                <input
+                                  type="text"
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  placeholder="Search country name or code..."
+                                  className="w-full rounded-lg bg-surface px-2.5 py-1.5 text-xs text-white placeholder:text-neutral-500 outline-none border border-white/10 focus:border-primary"
+                                  autoFocus
+                                />
+                              </div>
+                              <div className="space-y-0.5">
+                                {filteredCountries.length === 0 ? (
+                                  <div className="px-3 py-2 text-xs text-neutral-400 text-center">
+                                    No countries found
+                                  </div>
+                                ) : (
+                                  filteredCountries.map((c) => (
+                                    <button
+                                      key={`${c.code}-${c.dialCode}`}
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedCountry(c);
+                                        setCountryDropdownOpen(false);
+                                        setCountrySearch("");
+                                      }}
+                                      className={cn(
+                                        "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left",
+                                        selectedCountry.code === c.code &&
+                                          selectedCountry.dialCode === c.dialCode
+                                          ? "bg-primary/20 text-primary font-semibold"
+                                          : "text-neutral-300 hover:bg-white/5 hover:text-white",
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2 truncate">
+                                        <span className="text-sm">{c.flag}</span>
+                                        <span className="truncate">{c.name}</span>
+                                      </div>
+                                      <span className="text-neutral-400 font-mono text-[11px] ml-2 shrink-0">
+                                        {c.dialCode}
+                                      </span>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Company or Brand */}
                         <div>
                           <label className="block text-xs font-medium text-neutral-400 mb-1.5">
                             Company or Brand
@@ -449,19 +763,20 @@ function ContactPage() {
                             className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-sm text-foreground placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
                           />
                         </div>
+                      </div>
 
-                        <div>
-                          <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-                            Current Website (if applicable)
-                          </label>
-                          <input
-                            type="text"
-                            value={website}
-                            onChange={(e) => setWebsite(e.target.value)}
-                            placeholder="https://acme.com"
-                            className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-sm text-foreground placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                          />
-                        </div>
+                      {/* Current Website */}
+                      <div>
+                        <label className="block text-xs font-medium text-neutral-400 mb-1.5">
+                          Current Website (if applicable)
+                        </label>
+                        <input
+                          type="text"
+                          value={website}
+                          onChange={(e) => setWebsite(e.target.value)}
+                          placeholder="https://acme.com"
+                          className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-sm text-foreground placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                        />
                       </div>
 
                       <div>
@@ -698,6 +1013,6 @@ function ContactPage() {
 
       <Footer />
       <Toaster position="bottom-right" />
-    </div>
+    </motion.div>
   );
 }
