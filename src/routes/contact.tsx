@@ -57,15 +57,18 @@ export const Route = createFileRoute("/contact")({
 });
 
 const serviceOptions = [
-  "Web Development",
-  "UI/UX Product Design",
-  "Shopify & E-commerce",
-  "Branding & Positioning",
-  "Webflow / Custom CMS",
-  "Web Applications & SaaS",
-  "SEO & Organic Growth",
-  "Paid Ads & Acquisition",
-  "AI Automation & CRM",
+  "UI & UX Design Services",
+  "Web Design Services",
+  "Mobile App Design Services",
+  "Branding & Identity Services",
+  "Web Development Services",
+  "WordPress Development Services",
+  "Shopify Development Services",
+  "Webflow Development Services",
+  "Digital Marketing Services",
+  "Paid Search & Social Ads",
+  "SEO & Growth Marketing",
+  "Content & Influencer Marketing",
 ];
 
 const budgetOptions = [

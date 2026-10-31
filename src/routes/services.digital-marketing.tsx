@@ -45,7 +45,7 @@ function DigitalMarketingPage() {
         <Testimonials />
         <TechStack data={digitalMarketingData.tech_stack} />
         <Faqs data={digitalMarketingData.faqs} />
-        <ContactForm defaultService="AI Automation & CRM" />
+        <ContactForm defaultService="Digital Marketing Services" />
       </main>
       <Footer />
     </div>

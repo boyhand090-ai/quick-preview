@@ -45,7 +45,7 @@ function ContentMarketingPage() {
         <Testimonials />
         <TechStack data={contentMarketingData.tech_stack} />
         <Faqs data={contentMarketingData.faqs} />
-        <ContactForm defaultService="Branding & Strategy" />
+        <ContactForm defaultService="Content & Influencer Marketing" />
       </main>
       <Footer />
     </div>

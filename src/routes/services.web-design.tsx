@@ -45,7 +45,7 @@ function WebDesignPage() {
         <Testimonials />
         <TechStack data={webDesignData.tech_stack} />
         <Faqs data={webDesignData.faqs} />
-        <ContactForm defaultService="Web Design" />
+        <ContactForm defaultService="Web Design Services" />
       </main>
       <Footer />
     </div>

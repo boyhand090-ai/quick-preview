@@ -45,7 +45,7 @@ function WordPressDevelopmentPage() {
         <Testimonials />
         <TechStack data={wordpressDevData.tech_stack} />
         <Faqs data={wordpressDevData.faqs} />
-        <ContactForm defaultService="WordPress Development" />
+        <ContactForm defaultService="WordPress Development Services" />
       </main>
       <Footer />
     </div>

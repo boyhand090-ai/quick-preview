@@ -1,22 +1,12 @@
-import { useState, useEffect, useRef, type FormEvent } from "react";
-import { Star, ChevronDown, X, Check } from "lucide-react";
+import { useState, useEffect, useRef, useMemo, type FormEvent } from "react";
+import { Star, ChevronDown, X, Check, Search, Sparkles, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { siteData } from "@/data/webdev/siteData";
 import { saveInquiry } from "@/lib/inbox";
 import { cn } from "@/lib/utils";
+import { SERVICE_CATEGORIES, ALL_MENU_SERVICES } from "@/data/servicesList";
 
 const budgetOptions = ["$1k to 10k", "$10k to 20k", "$20k to $50k", "$100k+"];
-
-const allServices = [
-  "Web Development",
-  "Web Design",
-  "Mobile App Design",
-  "Branding & Strategy",
-  "UI/UX Design",
-  "E-commerce",
-  "SEO & Growth",
-  "AI Automation",
-];
 
 export function Contact() {
   const testimonials = siteData.contact.testimonials;
@@ -28,7 +18,35 @@ export function Contact() {
   const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const [budget, setBudget] = useState("$1k to 10k");
   const [message, setMessage] = useState("");
+  const [serviceSearch, setServiceSearch] = useState("");
+  const [customServiceInput, setCustomServiceInput] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleAddCustomService = () => {
+    const trimmed = customServiceInput.trim();
+    if (!trimmed) return;
+    if (!selectedServices.includes(trimmed)) {
+      setSelectedServices([...selectedServices, trimmed]);
+    }
+    setCustomServiceInput("");
+    setShowCustomInput(false);
+    toast.success(`Added "${trimmed}" to disciplines`);
+  };
+
+  const filteredCategories = useMemo(() => {
+    if (!serviceSearch.trim()) return SERVICE_CATEGORIES;
+    const q = serviceSearch.toLowerCase().trim();
+    return SERVICE_CATEGORIES.map((cat) => ({
+      ...cat,
+      items: cat.items.filter(
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          item.shortTitle.toLowerCase().includes(q) ||
+          item.subtitle.toLowerCase().includes(q),
+      ),
+    })).filter((cat) => cat.items.length > 0);
+  }, [serviceSearch]);
 
   // Auto-advance testimonial carousel
   useEffect(() => {
@@ -262,63 +280,159 @@ export function Contact() {
                     />
                   </div>
 
-                  {/* Dropdown Menu */}
+                  {/* Dropdown Menu - All 12 Services from Menubar */}
                   {serviceDropdownOpen && (
-                    <div className="absolute left-0 right-0 top-full mt-2 z-40 rounded-2xl bg-white/98 backdrop-blur-xl border border-neutral-200/90 p-2 shadow-[0_24px_50px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in-0 zoom-in-95 duration-150">
-                      <div className="px-2 py-1.5 border-b border-neutral-100 flex items-center justify-between text-[11px] font-medium text-neutral-500">
-                        <span>Select all disciplines that apply</span>
-                        {selectedServices.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => setSelectedServices([])}
-                            className="text-neutral-600 hover:text-neutral-950 font-semibold cursor-pointer transition-colors"
-                          >
-                            Clear all ({selectedServices.length})
-                          </button>
-                        )}
-                      </div>
-                      <div className="max-h-60 overflow-y-auto p-1 space-y-1 custom-scrollbar pr-1">
-                        {allServices.map((srv) => {
-                          const isSelected = selectedServices.includes(srv);
-                          return (
+                    <div className="absolute left-0 right-0 top-full mt-2 z-40 rounded-2xl bg-white/98 backdrop-blur-xl border border-neutral-200/90 p-2.5 shadow-[0_24px_50px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.06)] animate-in fade-in-0 zoom-in-95 duration-150 max-h-[340px] flex flex-col">
+                      <div className="pb-2 border-b border-neutral-100 flex flex-col gap-2">
+                        <div className="relative">
+                          <Search className="size-3 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <input
+                            type="text"
+                            value={serviceSearch}
+                            onChange={(e) => setServiceSearch(e.target.value)}
+                            placeholder="Search all 12 services..."
+                            className="w-full rounded-lg bg-neutral-100/80 pl-8 pr-7 py-1.5 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none border border-neutral-200/60 focus:border-neutral-900 focus:bg-white transition-all"
+                            autoFocus
+                          />
+                          {serviceSearch && (
                             <button
-                              key={srv}
                               type="button"
-                              onClick={() => toggleService(srv)}
-                              className={cn(
-                                "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all text-left cursor-pointer group",
-                                isSelected
-                                  ? "bg-[#9AFD0D]/20 text-neutral-950 font-semibold"
-                                  : "text-neutral-700 hover:bg-neutral-100/80 hover:text-neutral-950",
-                              )}
+                              onClick={() => setServiceSearch("")}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 size-3 text-neutral-400 hover:text-neutral-700"
                             >
-                              <div className="flex items-center gap-2.5">
-                                <div
+                              <X className="size-2.5" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] font-medium text-neutral-500 px-0.5">
+                          <span>{selectedServices.length} selected</span>
+                          {selectedServices.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedServices([])}
+                              className="text-neutral-700 hover:text-neutral-950 font-semibold cursor-pointer transition-colors"
+                            >
+                              Clear all ({selectedServices.length})
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="overflow-y-auto p-1 space-y-3 custom-scrollbar max-h-[220px]">
+                        {filteredCategories.map((group) => (
+                          <div key={group.category} className="space-y-1">
+                            <div className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                              {group.category}
+                            </div>
+                            {group.items.map((item) => {
+                              const isChecked = selectedServices.includes(item.title);
+                              return (
+                                <button
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => toggleService(item.title)}
                                   className={cn(
-                                    "size-4.5 rounded-md flex items-center justify-center border transition-all",
-                                    isSelected
-                                      ? "bg-neutral-950 border-neutral-950 text-white"
-                                      : "border-neutral-300 bg-white group-hover:border-neutral-400",
+                                    "w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer group",
+                                    isChecked
+                                      ? "bg-[#9AFD0D]/20 text-neutral-950 font-semibold shadow-2xs"
+                                      : "text-neutral-700 hover:bg-neutral-100/80 hover:text-neutral-950",
                                   )}
                                 >
-                                  {isSelected && <Check className="size-3 stroke-[3]" />}
-                                </div>
-                                <span>{srv}</span>
-                              </div>
-                              {isSelected && (
-                                <span className="text-[10px] font-mono font-bold text-neutral-600">
-                                  Selected
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div
+                                      className={cn(
+                                        "size-4 rounded-md flex items-center justify-center border shrink-0 transition-all",
+                                        isChecked
+                                          ? "bg-neutral-950 border-neutral-950 text-white"
+                                          : "border-neutral-300 bg-white group-hover:border-neutral-400",
+                                      )}
+                                    >
+                                      {isChecked && <Check className="size-2.5 stroke-[3]" />}
+                                    </div>
+                                    <div className="w-5 h-5 rounded-md bg-neutral-100/90 border border-neutral-200/60 p-0.5 shrink-0 flex items-center justify-center">
+                                      <img
+                                        src={item.icon}
+                                        alt=""
+                                        className="w-full h-full object-contain"
+                                      />
+                                    </div>
+                                    <div className="truncate">
+                                      <div className="truncate text-xs font-semibold text-neutral-900">
+                                        {item.title}
+                                      </div>
+                                      <div className="truncate text-[10px] text-neutral-400">
+                                        {item.subtitle}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {isChecked && (
+                                    <span className="text-[10px] font-mono font-bold text-neutral-600 shrink-0 ml-1">
+                                      ✓
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ))}
+
+                        <div className="pt-2 border-t border-neutral-100">
+                          {showCustomInput ? (
+                            <div className="p-2 bg-neutral-50 rounded-xl border border-neutral-200/80 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-semibold text-neutral-800 flex items-center gap-1">
+                                  <Sparkles className="size-3 text-[#79c704]" />
+                                  Custom Service
                                 </span>
-                              )}
+                                <button
+                                  type="button"
+                                  onClick={() => setShowCustomInput(false)}
+                                  className="text-neutral-400 hover:text-neutral-700"
+                                >
+                                  <X className="size-3" />
+                                </button>
+                              </div>
+                              <div className="flex gap-1.5">
+                                <input
+                                  type="text"
+                                  value={customServiceInput}
+                                  onChange={(e) => setCustomServiceInput(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handleAddCustomService();
+                                    }
+                                  }}
+                                  placeholder="e.g. AI Automation, Web3..."
+                                  className="flex-1 px-2.5 py-1 text-xs bg-white rounded-lg border border-neutral-200 text-neutral-900 outline-none focus:border-neutral-900"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={handleAddCustomService}
+                                  className="px-2.5 py-1 rounded-lg bg-neutral-950 text-white text-xs font-semibold hover:bg-neutral-800 shrink-0 cursor-pointer"
+                                >
+                                  Add
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setShowCustomInput(true)}
+                              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl border border-dashed border-neutral-300 hover:border-neutral-950 text-neutral-600 hover:text-neutral-950 text-xs font-medium cursor-pointer transition-colors"
+                            >
+                              <Plus className="size-3" />
+                              <span>+ Add Custom Service</span>
                             </button>
-                          );
-                        })}
+                          )}
+                        </div>
                       </div>
+
                       <div className="pt-2 px-1 border-t border-neutral-100 mt-1 flex justify-end">
                         <button
                           type="button"
                           onClick={() => setServiceDropdownOpen(false)}
-                          className="px-3 py-1.5 rounded-lg bg-neutral-950 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
+                          className="px-3.5 py-1 rounded-lg bg-neutral-950 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
                         >
                           Done
                         </button>

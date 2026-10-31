@@ -45,7 +45,7 @@ function MobileAppDesignPage() {
         <Testimonials />
         <TechStack data={mobileAppDesignData.tech_stack} />
         <Faqs data={mobileAppDesignData.faqs} />
-        <ContactForm defaultService="Mobile App Design" />
+        <ContactForm defaultService="Mobile App Design Services" />
       </main>
       <Footer />
     </div>

@@ -46,7 +46,7 @@ function WebDevelopmentPage() {
         <Testimonials />
         <TechStack />
         <Faqs />
-        <ContactForm />
+        <ContactForm defaultService="Web Development Services" />
       </main>
       <Footer />
     </div>

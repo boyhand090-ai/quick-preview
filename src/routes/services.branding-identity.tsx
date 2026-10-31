@@ -45,7 +45,7 @@ function BrandingIdentityPage() {
         <Testimonials />
         <TechStack data={brandingIdentityData.tech_stack} />
         <Faqs data={brandingIdentityData.faqs} />
-        <ContactForm defaultService="Branding & Strategy" />
+        <ContactForm defaultService="Branding & Identity Services" />
       </main>
       <Footer />
     </div>

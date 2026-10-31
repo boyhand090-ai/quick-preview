@@ -45,7 +45,7 @@ function ShopifyDevelopmentPage() {
         <Testimonials />
         <TechStack data={shopifyDevData.tech_stack} />
         <Faqs data={shopifyDevData.faqs} />
-        <ContactForm defaultService="E-commerce" />
+        <ContactForm defaultService="Shopify Development Services" />
       </main>
       <Footer />
     </div>

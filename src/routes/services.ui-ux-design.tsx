@@ -45,7 +45,7 @@ function UiUxDesignPage() {
         <Testimonials />
         <TechStack data={uiUxDesignData.tech_stack} />
         <Faqs data={uiUxDesignData.faqs} />
-        <ContactForm defaultService="UI & UX Design" />
+        <ContactForm defaultService="UI & UX Design Services" />
       </main>
       <Footer />
     </div>

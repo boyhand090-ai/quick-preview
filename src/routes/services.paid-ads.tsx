@@ -45,7 +45,7 @@ function PaidAdsPage() {
         <Testimonials />
         <TechStack data={paidAdsData.tech_stack} />
         <Faqs data={paidAdsData.faqs} />
-        <ContactForm defaultService="Web Development" />
+        <ContactForm defaultService="Paid Search & Social Ads" />
       </main>
       <Footer />
     </div>

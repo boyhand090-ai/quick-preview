@@ -419,19 +419,19 @@ export const siteData = {
     items: [
       {
         name: "react",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/react.svg",
       },
       {
         name: "next js",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
-      },
-      {
-        name: "Javascript",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/nextjs.svg",
       },
       {
         name: "TypeScript",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/typescript.svg",
+      },
+      {
+        name: "Javascript",
+        image: "/assets/tools/javascript.svg",
       },
     ],
   },

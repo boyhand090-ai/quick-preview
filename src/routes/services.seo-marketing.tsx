@@ -45,7 +45,7 @@ function SeoMarketingPage() {
         <Testimonials />
         <TechStack data={seoMarketingData.tech_stack} />
         <Faqs data={seoMarketingData.faqs} />
-        <ContactForm defaultService="Web Development" />
+        <ContactForm defaultService="SEO & Growth Marketing" />
       </main>
       <Footer />
     </div>

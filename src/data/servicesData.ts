@@ -352,19 +352,19 @@ export const uiUxDesignData: FullServiceData = {
     items: [
       {
         name: "Figma",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/figma.svg",
       },
       {
         name: "ProtoPie",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/protopie.svg",
       },
       {
         name: "Framer",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/framer.svg",
       },
       {
         name: "Lottie",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/lottie.svg",
       },
     ],
   },
@@ -624,16 +624,19 @@ export const webDesignData: FullServiceData = {
     items: [
       {
         name: "Figma",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/figma.svg",
       },
-      { name: "Webflow", image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp" },
+      {
+        name: "Webflow",
+        image: "/assets/tools/webflow.svg",
+      },
       {
         name: "Spline 3D",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/spline.svg",
       },
       {
         name: "Illustrator",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/illustrator.svg",
       },
     ],
   },
@@ -886,19 +889,19 @@ export const mobileAppDesignData: FullServiceData = {
     items: [
       {
         name: "Figma",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/figma.svg",
       },
       {
         name: "ProtoPie",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/protopie.svg",
       },
       {
         name: "Lottie Files",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/lottie.svg",
       },
       {
         name: "Xcode Specs",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/xcode.svg",
       },
     ],
   },
@@ -1139,19 +1142,19 @@ export const brandingIdentityData: FullServiceData = {
     items: [
       {
         name: "Adobe Illustrator",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/illustrator.svg",
       },
       {
         name: "Adobe Photoshop",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/photoshop.svg",
       },
       {
         name: "Figma Brand Kits",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/figma.svg",
       },
       {
         name: "InDesign",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/indesign.svg",
       },
     ],
   },
@@ -1406,16 +1409,19 @@ export const wordpressDevData: FullServiceData = {
     items: [
       {
         name: "WordPress 6+",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/wordpress.svg",
       },
-      { name: "ACF Pro", image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp" },
+      {
+        name: "ACF Pro",
+        image: "/assets/tools/acf.svg",
+      },
       {
         name: "PHP 8.3",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/php.svg",
       },
       {
         name: "MySQL / Redis",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/mysql.svg",
       },
     ],
   },
@@ -1670,19 +1676,19 @@ export const shopifyDevData: FullServiceData = {
     items: [
       {
         name: "Shopify Liquid",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/shopify.svg",
       },
       {
         name: "Shopify Plus",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/shopify.svg",
       },
       {
         name: "Storefront API",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/graphql.svg",
       },
       {
         name: "Klaviyo & ERP",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/klaviyo.svg",
       },
     ],
   },
@@ -1937,19 +1943,19 @@ export const webflowDevData: FullServiceData = {
     items: [
       {
         name: "Webflow",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/webflow.svg",
       },
       {
         name: "Finsweet Client-First",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/finsweet.svg",
       },
       {
         name: "GSAP Motion",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/gsap.svg",
       },
       {
         name: "Zapier / Make",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/zapier.svg",
       },
     ],
   },
@@ -2204,16 +2210,19 @@ export const digitalMarketingData: FullServiceData = {
     items: [
       {
         name: "Google Analytics 4",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/ga4.svg",
       },
-      { name: "Klaviyo", image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp" },
+      {
+        name: "Klaviyo",
+        image: "/assets/tools/klaviyo.svg",
+      },
       {
         name: "HubSpot CRM",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/hubspot.svg",
       },
       {
         name: "Segment CDP",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/segment.svg",
       },
     ],
   },
@@ -2468,19 +2477,19 @@ export const paidAdsData: FullServiceData = {
     items: [
       {
         name: "Google Ads",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/google-ads.svg",
       },
       {
         name: "Meta Ads Manager",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/meta-ads.svg",
       },
       {
         name: "LinkedIn Campaign",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/linkedin-ads.svg",
       },
       {
         name: "Triple Whale / Hyros",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/triple-whale.svg",
       },
     ],
   },
@@ -2735,16 +2744,19 @@ export const seoMarketingData: FullServiceData = {
     items: [
       {
         name: "Ahrefs Enterprise",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/ahrefs.svg",
       },
-      { name: "SEMrush", image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp" },
+      {
+        name: "SEMrush",
+        image: "/assets/tools/semrush.svg",
+      },
       {
         name: "Google Search Console",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/gsc.svg",
       },
       {
         name: "Screaming Frog",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/screaming-frog.svg",
       },
     ],
   },
@@ -2999,19 +3011,19 @@ export const contentMarketingData: FullServiceData = {
     items: [
       {
         name: "CreatorIQ",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/Javascript.webp",
+        image: "/assets/tools/creatoriq.svg",
       },
       {
         name: "Premiere Pro",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/react.webp",
+        image: "/assets/tools/premiere.svg",
       },
       {
         name: "CapCut Pro",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/next-js.webp",
+        image: "/assets/tools/capcut.svg",
       },
       {
         name: "Sprout Social",
-        image: "https://cms.six2eight.com/wp-content/uploads/2025/06/TypeScript.webp",
+        image: "/assets/tools/sprout-social.svg",
       },
     ],
   },
