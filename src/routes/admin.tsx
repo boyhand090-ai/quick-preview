@@ -30,8 +30,16 @@ import {
   ShieldCheck,
   ChevronRight,
   Phone,
+  ArrowUpDown,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   getInquiries,
   fetchServerInquiries,
@@ -587,31 +595,41 @@ function AdminPage() {
             ))}
           </div>
 
-          {/* Service filter & sort */}
+          {/* Service filter & sort dropdowns */}
           <div className="flex items-center gap-2">
-            <select
-              aria-label="Filter by service"
-              value={serviceFilter}
-              onChange={(e) => setServiceFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-[#1A1A20] border border-white/10 text-white text-xs outline-none focus:border-[#9AFD0D] max-w-[160px]"
-            >
-              <option value="all">All services</option>
-              {allServices.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label="Sort inquiries"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="px-3 py-2 rounded-xl bg-[#1A1A20] border border-white/10 text-white text-xs outline-none focus:border-[#9AFD0D]"
-            >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="name">Name A–Z</option>
-            </select>
+            <div className="w-38 sm:w-44">
+              <Select value={serviceFilter} onValueChange={(val) => setServiceFilter(val)}>
+                <SelectTrigger className="h-9 rounded-xl bg-[#1A1A20] border-white/10 text-white text-xs hover:border-white/20">
+                  <div className="flex items-center gap-2 truncate">
+                    <Filter className="size-3 text-[#9AFD0D] shrink-0" />
+                    <SelectValue placeholder="All services" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="all">All services</SelectItem>
+                  {allServices.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-32 sm:w-36">
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val as typeof sortBy)}>
+                <SelectTrigger className="h-9 rounded-xl bg-[#1A1A20] border-white/10 text-white text-xs hover:border-white/20">
+                  <div className="flex items-center gap-2 truncate">
+                    <ArrowUpDown className="size-3 text-[#9AFD0D] shrink-0" />
+                    <SelectValue placeholder="Sort" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest first</SelectItem>
+                  <SelectItem value="oldest">Oldest first</SelectItem>
+                  <SelectItem value="name">Name A–Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Search Input */}

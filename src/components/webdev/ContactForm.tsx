@@ -3,6 +3,7 @@ import { siteData } from "@/data/webdev/siteData";
 import { Star, CheckCircle, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { saveInquiry } from "@/lib/inbox";
+import { cn } from "@/lib/utils";
 
 interface ContactFormProps {
   defaultService?: string;
@@ -250,13 +251,18 @@ export const ContactForm: React.FC<ContactFormProps> = ({ defaultService }) => {
                               setHelpDropdownOpen(!helpDropdownOpen);
                             }
                           }}
-                          className="w-full h-11 px-3 rounded-xl bg-[#F4F4F5] border-0 text-neutral-900 text-xs flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-neutral-900 select-none"
+                          className={cn(
+                            "w-full min-h-[46px] px-3 py-1.5 rounded-xl border text-neutral-900 text-xs flex items-center justify-between cursor-pointer transition-all select-none",
+                            helpDropdownOpen
+                              ? "bg-white border-neutral-900 ring-2 ring-neutral-900/10 shadow-xs"
+                              : "bg-[#F4F4F5] border-neutral-200 hover:border-neutral-300 hover:bg-[#eceef0]",
+                          )}
                         >
-                          <div className="flex items-center gap-1.5 overflow-hidden max-w-[calc(100%-20px)]">
+                          <div className="flex items-center gap-1.5 overflow-hidden max-w-[calc(100%-24px)] flex-wrap">
                             {selectedServices.slice(0, 2).map((srv) => (
                               <span
                                 key={srv}
-                                className="inline-flex items-center gap-1 bg-white border border-neutral-300 rounded-md px-2 py-0.5 text-[11px] font-medium text-neutral-800 shrink-0"
+                                className="inline-flex items-center gap-1 bg-white border border-neutral-200/90 rounded-lg px-2 py-0.5 text-[11px] font-semibold text-neutral-800 shadow-2xs shrink-0"
                               >
                                 <span className="truncate max-w-[95px]">{srv}</span>
                                 <button
@@ -265,68 +271,102 @@ export const ContactForm: React.FC<ContactFormProps> = ({ defaultService }) => {
                                     e.stopPropagation();
                                     toggleService(srv);
                                   }}
-                                  className="text-neutral-400 hover:text-black cursor-pointer text-xs leading-none"
+                                  className="size-3.5 rounded-full hover:bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-black cursor-pointer transition-colors"
+                                  title={`Remove ${srv}`}
                                 >
                                   ×
                                 </button>
                               </span>
                             ))}
                             {selectedServices.length > 2 && (
-                              <span className="text-[11px] font-medium text-neutral-500 shrink-0">
+                              <span className="text-[11px] font-bold text-neutral-700 bg-neutral-200/80 px-2 py-0.5 rounded-full shrink-0">
                                 +{selectedServices.length - 2} more
                               </span>
                             )}
                             {selectedServices.length === 0 && (
                               <span className="text-neutral-400 text-xs px-1">
-                                Select services...
+                                Select services needed...
                               </span>
                             )}
                           </div>
                           <ChevronDown
-                            className={`size-4 text-neutral-600 shrink-0 transition-transform ${
-                              helpDropdownOpen ? "rotate-180" : ""
-                            }`}
+                            className={cn(
+                              "size-4 text-neutral-500 shrink-0 transition-transform duration-200",
+                              helpDropdownOpen && "rotate-180 text-neutral-950",
+                            )}
                           />
                         </div>
 
                         {/* Dropdown Menu Modal */}
                         {helpDropdownOpen && (
-                          <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-neutral-200 rounded-xl shadow-[0_16px_36px_rgba(0,0,0,0.18)] p-1.5 z-50 max-h-[260px] overflow-y-auto">
-                            {serviceOptions.map((srv) => {
-                              const isChecked = selectedServices.includes(srv);
-                              return (
-                                <div
-                                  key={srv}
-                                  onClick={() => toggleService(srv)}
-                                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer text-xs transition-colors mb-1 last:mb-0 select-none ${
-                                    isChecked
-                                      ? "bg-[#9AFD0D] text-black font-semibold"
-                                      : "bg-white text-neutral-700 hover:bg-neutral-100 font-medium"
-                                  }`}
+                          <div className="absolute left-0 right-0 top-full mt-2 bg-white/98 backdrop-blur-xl border border-neutral-200/90 rounded-2xl shadow-[0_24px_50px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] p-2 z-50 max-h-[280px] overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-150">
+                            <div className="px-2 py-1.5 border-b border-neutral-100 flex items-center justify-between text-[11px] font-medium text-neutral-500">
+                              <span>Select services that fit your scope</span>
+                              {selectedServices.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedServices([])}
+                                  className="text-neutral-700 hover:text-black font-semibold cursor-pointer transition-colors"
                                 >
+                                  Clear all
+                                </button>
+                              )}
+                            </div>
+                            <div className="overflow-y-auto p-1 space-y-1 custom-scrollbar">
+                              {serviceOptions.map((srv) => {
+                                const isChecked = selectedServices.includes(srv);
+                                return (
                                   <div
-                                    className={`size-4 rounded flex items-center justify-center shrink-0 border transition-colors ${
+                                    key={srv}
+                                    onClick={() => toggleService(srv)}
+                                    className={cn(
+                                      "flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-xs transition-all select-none group",
                                       isChecked
-                                        ? "bg-black border-black text-white"
-                                        : "border-neutral-400 bg-white"
-                                    }`}
+                                        ? "bg-[#9AFD0D]/20 text-neutral-950 font-semibold"
+                                        : "bg-white text-neutral-700 hover:bg-neutral-100/80 font-medium",
+                                    )}
                                   >
+                                    <div className="flex items-center gap-2.5">
+                                      <div
+                                        className={cn(
+                                          "size-4 rounded-md flex items-center justify-center shrink-0 border transition-all",
+                                          isChecked
+                                            ? "bg-neutral-950 border-neutral-950 text-white"
+                                            : "border-neutral-300 bg-white group-hover:border-neutral-400",
+                                        )}
+                                      >
+                                        {isChecked && (
+                                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                                            <path
+                                              d="M1 4L3.5 6.5L9 1"
+                                              stroke="currentColor"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            />
+                                          </svg>
+                                        )}
+                                      </div>
+                                      <span>{srv}</span>
+                                    </div>
                                     {isChecked && (
-                                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                                        <path
-                                          d="M1 4L3.5 6.5L9 1"
-                                          stroke="currentColor"
-                                          strokeWidth="2"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                        />
-                                      </svg>
+                                      <span className="text-[10px] font-mono font-bold text-neutral-600">
+                                        Selected
+                                      </span>
                                     )}
                                   </div>
-                                  <span>{srv}</span>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
+                            <div className="pt-2 px-1 border-t border-neutral-100 mt-1 flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => setHelpDropdownOpen(false)}
+                                className="px-3 py-1.5 rounded-lg bg-neutral-950 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors cursor-pointer"
+                              >
+                                Done
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>

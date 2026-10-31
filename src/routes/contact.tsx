@@ -33,7 +33,7 @@ import { CALENDLY } from "@/data/site";
 import { cn } from "@/lib/utils";
 import { saveInquiry } from "@/lib/inbox";
 
-import { allCountries, popularCountryCodes, type CountryCode } from "@/data/countries";
+import { allCountries, type CountryCode } from "@/data/countries";
 
 export type { CountryCode };
 export const countryCodes = allCountries;
@@ -83,6 +83,51 @@ const timelineOptions = [
   "Flexible / Exploring",
 ];
 
+const hearAboutOptions = [
+  {
+    value: "Google Search",
+    label: "Google Search",
+    subtext: "Search engine query, technical guide, or blog",
+    icon: Search,
+    color: "text-emerald-400",
+  },
+  {
+    value: "Client Referral",
+    label: "Client Referral / Colleague",
+    subtext: "Direct recommendation from a founder or partner",
+    icon: Users2,
+    color: "text-cyan-400",
+  },
+  {
+    value: "LinkedIn",
+    label: "LinkedIn",
+    subtext: "Company updates, technical case studies, or leadership",
+    icon: ArrowUpRight,
+    color: "text-blue-400",
+  },
+  {
+    value: "Dribbble / Behance",
+    label: "Dribbble / Behance / Portfolio",
+    subtext: "Design exploration shots, UI concepts, or showcases",
+    icon: Sparkles,
+    color: "text-pink-400",
+  },
+  {
+    value: "Twitter / X",
+    label: "Twitter / X",
+    subtext: "Founder discussions, tech launches, or threads",
+    icon: Globe2,
+    color: "text-sky-400",
+  },
+  {
+    value: "Other",
+    label: "Other Discovery Channel",
+    subtext: "Podcast, newsletter, event, or direct discovery",
+    icon: Plus,
+    color: "text-amber-400",
+  },
+];
+
 const contactFaqs = [
   {
     q: "How fast will I hear back from your team?",
@@ -123,6 +168,7 @@ function ContactPage() {
   const [timeline, setTimeline] = useState("1 – 2 Months");
   const [message, setMessage] = useState("");
   const [hearAbout, setHearAbout] = useState("");
+  const [hearAboutDropdownOpen, setHearAboutDropdownOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
@@ -130,8 +176,9 @@ function ContactPage() {
 
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const countryTriggerRef = useRef<HTMLButtonElement>(null);
+  const hearAboutRef = useRef<HTMLDivElement>(null);
 
-  // Close country dropdown on outside click
+  // Close dropdowns on outside click and ESC key
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -142,9 +189,24 @@ function ContactPage() {
       ) {
         setCountryDropdownOpen(false);
       }
+      if (hearAboutRef.current && !hearAboutRef.current.contains(e.target as Node)) {
+        setHearAboutDropdownOpen(false);
+      }
     }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setCountryDropdownOpen(false);
+        setHearAboutDropdownOpen(false);
+      }
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const filteredCountries = countryCodes.filter(
@@ -615,25 +677,32 @@ function ContactPage() {
                               Includes Country Code
                             </span>
                           </label>
-                          <div className="relative flex rounded-xl bg-surface border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                          <div className="relative flex rounded-xl bg-surface border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/40 transition-all">
                             {/* Country Flag & Dial Code Selector */}
                             <button
                               type="button"
                               ref={countryTriggerRef}
                               onClick={() => setCountryDropdownOpen((prev) => !prev)}
-                              className="flex items-center gap-1.5 px-3 py-3 border-r border-border/80 bg-surface/80 hover:bg-surface text-xs font-semibold text-foreground transition-colors cursor-pointer shrink-0 rounded-l-xl"
+                              className="group flex items-center gap-2 px-3 py-3 border-r border-border/80 bg-surface/80 hover:bg-surface text-xs font-semibold text-foreground transition-all cursor-pointer shrink-0 rounded-l-xl active:scale-[0.98]"
                               title={`${selectedCountry.name} (${selectedCountry.dialCode})`}
                               aria-haspopup="listbox"
                               aria-expanded={countryDropdownOpen}
                             >
-                              <span className="text-base leading-none">{selectedCountry.flag}</span>
-                              <span className="text-neutral-200 font-mono text-xs">
+                              <img
+                                src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
+                                srcSet={`https://flagcdn.com/w80/${selectedCountry.code.toLowerCase()}.png 2x`}
+                                width="20"
+                                height="14"
+                                alt=""
+                                className="w-5 h-3.5 object-cover rounded-[3px] border border-white/20 shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+                              />
+                              <span className="text-neutral-200 font-mono text-xs font-semibold">
                                 {selectedCountry.dialCode}
                               </span>
                               <ChevronDown
                                 className={cn(
-                                  "size-3 text-neutral-400 transition-transform",
-                                  countryDropdownOpen && "rotate-180",
+                                  "size-3 text-neutral-400 transition-transform duration-200",
+                                  countryDropdownOpen && "rotate-180 text-primary",
                                 )}
                               />
                             </button>
@@ -656,104 +725,104 @@ function ContactPage() {
                           {countryDropdownOpen && (
                             <div
                               ref={countryDropdownRef}
-                              className="absolute left-0 top-full mt-1.5 w-80 sm:w-96 max-h-80 overflow-hidden flex flex-col rounded-2xl border border-white/10 bg-[#16161D] shadow-[0_20px_50px_rgba(0,0,0,0.7)] z-50 backdrop-blur-xl"
+                              className="absolute left-0 top-full mt-2 w-80 sm:w-96 max-h-84 overflow-hidden flex flex-col rounded-2xl border border-white/10 bg-[#141419]/95 shadow-[0_24px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06),0_12px_36px_rgba(154,253,13,0.08)] z-50 backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 duration-150"
                             >
-                              <div className="p-2.5 border-b border-white/10 bg-[#131317]">
-                                <div className="flex items-center justify-between mb-1.5 px-0.5">
-                                  <span className="text-[11px] font-semibold text-neutral-300">
-                                    Select Country Dial Code
+                              <div className="p-3 border-b border-white/10 bg-[#101014]/90">
+                                <div className="flex items-center justify-between mb-2.5 px-0.5">
+                                  <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                                    Country Dial Code
                                   </span>
                                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#9AFD0D]/15 text-[#9AFD0D] border border-[#9AFD0D]/30 font-bold">
                                     {allCountries.length} Countries
                                   </span>
                                 </div>
                                 <div className="relative">
-                                  <Search className="size-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                  <Search className="size-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                   <input
                                     type="text"
                                     value={countrySearch}
                                     onChange={(e) => setCountrySearch(e.target.value)}
-                                    placeholder="Search 197 countries by name, code or dial..."
-                                    className="w-full rounded-lg bg-surface pl-8 pr-7 py-1.5 text-xs text-white placeholder:text-neutral-500 outline-none border border-white/10 focus:border-primary transition-all"
+                                    placeholder="Search country name or dial code..."
+                                    className="w-full rounded-xl bg-[#1C1C24] pl-9 pr-8 py-2 text-xs text-white placeholder:text-neutral-500 outline-none border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary/40 transition-all"
                                     autoFocus
                                   />
-                                  {countrySearch && (
+                                  {countrySearch ? (
                                     <button
                                       type="button"
                                       onClick={() => setCountrySearch("")}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-neutral-400 hover:text-white"
+                                      className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-neutral-400 hover:text-white"
                                     >
                                       <X className="size-3" />
                                     </button>
+                                  ) : (
+                                    <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[9px] font-mono text-neutral-500 bg-white/5 border border-white/10 rounded pointer-events-none">
+                                      ESC
+                                    </kbd>
                                   )}
                                 </div>
-
-                                {/* Popular shortcuts if search is empty */}
-                                {!countrySearch && (
-                                  <div className="mt-2 pt-2 border-t border-white/5">
-                                    <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block mb-1">
-                                      Quick Access
-                                    </span>
-                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                                      {allCountries
-                                        .filter((c) => popularCountryCodes.includes(c.code))
-                                        .slice(0, 9)
-                                        .map((c) => (
-                                          <button
-                                            key={`quick-${c.code}`}
-                                            type="button"
-                                            onClick={() => {
-                                              setSelectedCountry(c);
-                                              setCountryDropdownOpen(false);
-                                              setCountrySearch("");
-                                            }}
-                                            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 border border-white/10 text-[11px] text-neutral-200 hover:text-white transition-colors cursor-pointer"
-                                            title={`${c.name} (${c.dialCode})`}
-                                          >
-                                            <span>{c.flag}</span>
-                                            <span>{c.dialCode}</span>
-                                          </button>
-                                        ))}
-                                    </div>
-                                  </div>
-                                )}
                               </div>
 
-                              <div className="overflow-y-auto p-1.5 space-y-0.5 divide-y divide-white/[0.03]">
+                              <div className="overflow-y-auto p-1.5 space-y-0.5 divide-y divide-white/[0.03] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb:hover]:bg-white/40">
                                 {filteredCountries.length === 0 ? (
-                                  <div className="px-3 py-6 text-xs text-neutral-400 text-center">
+                                  <div className="px-3 py-8 text-xs text-neutral-400 text-center">
                                     No countries found matching &quot;{countrySearch}&quot;
                                   </div>
                                 ) : (
-                                  filteredCountries.map((c) => (
-                                    <button
-                                      key={`${c.code}-${c.dialCode}`}
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedCountry(c);
-                                        setCountryDropdownOpen(false);
-                                        setCountrySearch("");
-                                      }}
-                                      className={cn(
-                                        "w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left",
-                                        selectedCountry.code === c.code &&
-                                          selectedCountry.dialCode === c.dialCode
-                                          ? "bg-primary/20 text-primary font-semibold"
-                                          : "text-neutral-300 hover:bg-white/5 hover:text-white",
-                                      )}
-                                    >
-                                      <div className="flex items-center gap-2 truncate">
-                                        <span className="text-sm">{c.flag}</span>
-                                        <span className="truncate">{c.name}</span>
-                                        <span className="text-[10px] text-neutral-500 font-mono">
-                                          ({c.code})
-                                        </span>
-                                      </div>
-                                      <span className="text-neutral-300 font-mono text-[11px] ml-2 shrink-0 font-medium">
-                                        {c.dialCode}
-                                      </span>
-                                    </button>
-                                  ))
+                                  filteredCountries.map((c) => {
+                                    const isSelected =
+                                      selectedCountry.code === c.code &&
+                                      selectedCountry.dialCode === c.dialCode;
+                                    return (
+                                      <button
+                                        key={`${c.code}-${c.dialCode}`}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedCountry(c);
+                                          setCountryDropdownOpen(false);
+                                          setCountrySearch("");
+                                        }}
+                                        className={cn(
+                                          "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer text-left group",
+                                          isSelected
+                                            ? "bg-primary/20 text-white font-semibold border-l-2 border-l-primary"
+                                            : "text-neutral-300 hover:bg-white/8 hover:text-white",
+                                        )}
+                                      >
+                                        <div className="flex items-center gap-2.5 truncate">
+                                          <img
+                                            src={`https://flagcdn.com/w40/${c.code.toLowerCase()}.png`}
+                                            srcSet={`https://flagcdn.com/w80/${c.code.toLowerCase()}.png 2x`}
+                                            width="20"
+                                            height="14"
+                                            alt=""
+                                            className="w-5 h-3.5 object-cover rounded-[3px] border border-white/20 shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+                                            loading="lazy"
+                                          />
+                                          <span className="truncate group-hover:text-white">
+                                            {c.name}
+                                          </span>
+                                          <span className="text-[10px] text-neutral-500 font-mono">
+                                            ({c.code})
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                                          <span
+                                            className={cn(
+                                              "font-mono text-[11px] px-2 py-0.5 rounded-md transition-colors",
+                                              isSelected
+                                                ? "bg-primary text-black font-bold"
+                                                : "bg-white/5 text-neutral-300 group-hover:bg-primary/20 group-hover:text-primary",
+                                            )}
+                                          >
+                                            {c.dialCode}
+                                          </span>
+                                          {isSelected && (
+                                            <Check className="size-3.5 text-primary stroke-[2.5]" />
+                                          )}
+                                        </div>
+                                      </button>
+                                    );
+                                  })
                                 )}
                               </div>
                             </div>
@@ -802,23 +871,123 @@ function ContactPage() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-medium text-neutral-400 mb-1.5">
-                          How did you hear about six2eight?
+                      <div className="relative" ref={hearAboutRef}>
+                        <label className="block text-xs font-medium text-neutral-400 mb-1.5 flex items-center justify-between">
+                          <span>How did you hear about six2eight?</span>
+                          <span className="text-[10px] text-neutral-500">Optional</span>
                         </label>
-                        <select
-                          value={hearAbout}
-                          onChange={(e) => setHearAbout(e.target.value)}
-                          className="w-full rounded-xl bg-surface border border-border px-4 py-3 text-sm text-foreground placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer"
+                        <button
+                          type="button"
+                          onClick={() => setHearAboutDropdownOpen((prev) => !prev)}
+                          aria-haspopup="listbox"
+                          aria-expanded={hearAboutDropdownOpen}
+                          className="w-full h-12 px-3.5 sm:px-4 rounded-xl bg-surface border border-border hover:border-neutral-500 flex items-center justify-between gap-3 text-left transition-all cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40"
                         >
-                          <option value="">Select an option</option>
-                          <option value="Google Search">Google Search</option>
-                          <option value="Client Referral">Client Referral / Colleague</option>
-                          <option value="LinkedIn">LinkedIn</option>
-                          <option value="Dribbble / Behance">Dribbble / Behance / Portfolio</option>
-                          <option value="Twitter / X">Twitter / X</option>
-                          <option value="Other">Other</option>
-                        </select>
+                          {(() => {
+                            const selected = hearAboutOptions.find((o) => o.value === hearAbout);
+                            if (selected) {
+                              const Icon = selected.icon;
+                              return (
+                                <div className="flex items-center gap-2.5 truncate">
+                                  <div className="size-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                    <Icon className={cn("size-3.5", selected.color)} />
+                                  </div>
+                                  <div className="truncate">
+                                    <div className="text-xs font-semibold text-white truncate">
+                                      {selected.label}
+                                    </div>
+                                    <div className="text-[10px] text-neutral-400 truncate">
+                                      {selected.subtext}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <span className="text-xs sm:text-sm text-neutral-400">
+                                Select discovery channel...
+                              </span>
+                            );
+                          })()}
+                          <ChevronDown
+                            className={cn(
+                              "size-4 text-neutral-400 transition-transform duration-200 shrink-0",
+                              hearAboutDropdownOpen && "rotate-180 text-primary",
+                            )}
+                          />
+                        </button>
+
+                        {/* Custom Luxury Dropdown Menu */}
+                        {hearAboutDropdownOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-white/10 bg-[#141419]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06),0_12px_36px_rgba(154,253,13,0.08)] backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 duration-150">
+                            <div className="p-2 border-b border-white/5 flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                              <span>Choose a discovery source</span>
+                              {hearAbout && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setHearAbout("");
+                                    setHearAboutDropdownOpen(false);
+                                  }}
+                                  className="text-[10px] text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                                >
+                                  Clear selection
+                                </button>
+                              )}
+                            </div>
+                            <div className="max-h-64 overflow-y-auto p-1 space-y-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20">
+                              {hearAboutOptions.map((opt) => {
+                                const Icon = opt.icon;
+                                const isSelected = hearAbout === opt.value;
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => {
+                                      setHearAbout(opt.value);
+                                      setHearAboutDropdownOpen(false);
+                                    }}
+                                    className={cn(
+                                      "w-full flex items-center justify-between p-2 sm:p-2.5 rounded-xl text-left transition-all cursor-pointer group",
+                                      isSelected
+                                        ? "bg-primary/15 text-white border border-primary/30"
+                                        : "hover:bg-white/8 text-neutral-300 hover:text-white border border-transparent",
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div
+                                        className={cn(
+                                          "size-8 rounded-lg flex items-center justify-center shrink-0 border transition-all",
+                                          isSelected
+                                            ? "bg-primary/20 border-primary/40 text-primary"
+                                            : "bg-white/5 border-white/10 text-neutral-300 group-hover:border-white/20 group-hover:scale-105",
+                                        )}
+                                      >
+                                        <Icon
+                                          className={cn(
+                                            "size-4",
+                                            isSelected ? "text-primary" : opt.color,
+                                          )}
+                                        />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <div className="text-xs font-semibold truncate group-hover:text-white">
+                                          {opt.label}
+                                        </div>
+                                        <div className="text-[10px] text-neutral-400 truncate">
+                                          {opt.subtext}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {isSelected && (
+                                      <Check className="size-4 text-primary shrink-0 stroke-[2.5] ml-2" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
