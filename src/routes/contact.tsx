@@ -21,6 +21,7 @@ import {
   Plus,
   Sparkles,
   X,
+  Search,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { motion } from "motion/react";
@@ -32,55 +33,10 @@ import { CALENDLY } from "@/data/site";
 import { cn } from "@/lib/utils";
 import { saveInquiry } from "@/lib/inbox";
 
-export type CountryCode = {
-  name: string;
-  code: string;
-  flag: string;
-  dialCode: string;
-};
+import { allCountries, popularCountryCodes, type CountryCode } from "@/data/countries";
 
-export const countryCodes: CountryCode[] = [
-  { name: "United States", code: "US", flag: "🇺🇸", dialCode: "+1" },
-  { name: "United Kingdom", code: "GB", flag: "🇬🇧", dialCode: "+44" },
-  { name: "Canada", code: "CA", flag: "🇨🇦", dialCode: "+1" },
-  { name: "Australia", code: "AU", flag: "🇦🇺", dialCode: "+61" },
-  { name: "United Arab Emirates", code: "AE", flag: "🇦🇪", dialCode: "+971" },
-  { name: "Saudi Arabia", code: "SA", flag: "🇸🇦", dialCode: "+966" },
-  { name: "Pakistan", code: "PK", flag: "🇵🇰", dialCode: "+92" },
-  { name: "India", code: "IN", flag: "🇮🇳", dialCode: "+91" },
-  { name: "Germany", code: "DE", flag: "🇩🇪", dialCode: "+49" },
-  { name: "France", code: "FR", flag: "🇫🇷", dialCode: "+33" },
-  { name: "Singapore", code: "SG", flag: "🇸🇬", dialCode: "+65" },
-  { name: "Japan", code: "JP", flag: "🇯🇵", dialCode: "+81" },
-  { name: "Netherlands", code: "NL", flag: "🇳🇱", dialCode: "+31" },
-  { name: "Switzerland", code: "CH", flag: "🇨🇭", dialCode: "+41" },
-  { name: "New Zealand", code: "NZ", flag: "🇳🇿", dialCode: "+64" },
-  { name: "Ireland", code: "IE", flag: "🇮🇪", dialCode: "+353" },
-  { name: "Spain", code: "ES", flag: "🇪🇸", dialCode: "+34" },
-  { name: "Italy", code: "IT", flag: "🇮🇹", dialCode: "+39" },
-  { name: "Sweden", code: "SE", flag: "🇸🇪", dialCode: "+46" },
-  { name: "Norway", code: "NO", flag: "🇳🇴", dialCode: "+47" },
-  { name: "Denmark", code: "DK", flag: "🇩🇰", dialCode: "+45" },
-  { name: "Poland", code: "PL", flag: "🇵🇱", dialCode: "+48" },
-  { name: "Turkey", code: "TR", flag: "🇹🇷", dialCode: "+90" },
-  { name: "Qatar", code: "QA", flag: "🇶🇦", dialCode: "+974" },
-  { name: "Kuwait", code: "KW", flag: "🇰🇼", dialCode: "+965" },
-  { name: "Bahrain", code: "BH", flag: "🇧🇭", dialCode: "+973" },
-  { name: "Oman", code: "OM", flag: "🇴🇲", dialCode: "+968" },
-  { name: "Malaysia", code: "MY", flag: "🇲🇾", dialCode: "+60" },
-  { name: "Indonesia", code: "ID", flag: "🇮🇩", dialCode: "+62" },
-  { name: "Philippines", code: "PH", flag: "🇵🇭", dialCode: "+63" },
-  { name: "South Africa", code: "ZA", flag: "🇿🇦", dialCode: "+27" },
-  { name: "Brazil", code: "BR", flag: "🇧🇷", dialCode: "+55" },
-  { name: "Mexico", code: "MX", flag: "🇲🇽", dialCode: "+52" },
-  { name: "Nigeria", code: "NG", flag: "🇳🇬", dialCode: "+234" },
-  { name: "Egypt", code: "EG", flag: "🇪🇬", dialCode: "+20" },
-  { name: "Kenya", code: "KE", flag: "🇰🇪", dialCode: "+254" },
-  { name: "Bangladesh", code: "BD", flag: "🇧🇩", dialCode: "+880" },
-  { name: "Vietnam", code: "VN", flag: "🇻🇳", dialCode: "+84" },
-  { name: "South Korea", code: "KR", flag: "🇰🇷", dialCode: "+82" },
-  { name: "China", code: "CN", flag: "🇨🇳", dialCode: "+86" },
-];
+export type { CountryCode };
+export const countryCodes = allCountries;
 
 const title = "Contact Us — six2eight Digital Growth Agency";
 const description =
@@ -696,26 +652,77 @@ function ContactPage() {
                             </div>
                           </div>
 
-                          {/* Country Code Dropdown Modal */}
+                          {/* Country Code Dropdown Modal - All 197 Countries */}
                           {countryDropdownOpen && (
                             <div
                               ref={countryDropdownRef}
-                              className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 max-h-64 overflow-y-auto rounded-2xl border border-white/10 bg-[#16161D] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 backdrop-blur-xl"
+                              className="absolute left-0 top-full mt-1.5 w-80 sm:w-96 max-h-80 overflow-hidden flex flex-col rounded-2xl border border-white/10 bg-[#16161D] shadow-[0_20px_50px_rgba(0,0,0,0.7)] z-50 backdrop-blur-xl"
                             >
-                              <div className="p-1 mb-1 border-b border-white/5">
-                                <input
-                                  type="text"
-                                  value={countrySearch}
-                                  onChange={(e) => setCountrySearch(e.target.value)}
-                                  placeholder="Search country name or code..."
-                                  className="w-full rounded-lg bg-surface px-2.5 py-1.5 text-xs text-white placeholder:text-neutral-500 outline-none border border-white/10 focus:border-primary"
-                                  autoFocus
-                                />
+                              <div className="p-2.5 border-b border-white/10 bg-[#131317]">
+                                <div className="flex items-center justify-between mb-1.5 px-0.5">
+                                  <span className="text-[11px] font-semibold text-neutral-300">
+                                    Select Country Dial Code
+                                  </span>
+                                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#9AFD0D]/15 text-[#9AFD0D] border border-[#9AFD0D]/30 font-bold">
+                                    {allCountries.length} Countries
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <Search className="size-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                  <input
+                                    type="text"
+                                    value={countrySearch}
+                                    onChange={(e) => setCountrySearch(e.target.value)}
+                                    placeholder="Search 197 countries by name, code or dial..."
+                                    className="w-full rounded-lg bg-surface pl-8 pr-7 py-1.5 text-xs text-white placeholder:text-neutral-500 outline-none border border-white/10 focus:border-primary transition-all"
+                                    autoFocus
+                                  />
+                                  {countrySearch && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setCountrySearch("")}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 size-4 text-neutral-400 hover:text-white"
+                                    >
+                                      <X className="size-3" />
+                                    </button>
+                                  )}
+                                </div>
+
+                                {/* Popular shortcuts if search is empty */}
+                                {!countrySearch && (
+                                  <div className="mt-2 pt-2 border-t border-white/5">
+                                    <span className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider block mb-1">
+                                      Quick Access
+                                    </span>
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                                      {allCountries
+                                        .filter((c) => popularCountryCodes.includes(c.code))
+                                        .slice(0, 9)
+                                        .map((c) => (
+                                          <button
+                                            key={`quick-${c.code}`}
+                                            type="button"
+                                            onClick={() => {
+                                              setSelectedCountry(c);
+                                              setCountryDropdownOpen(false);
+                                              setCountrySearch("");
+                                            }}
+                                            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 border border-white/10 text-[11px] text-neutral-200 hover:text-white transition-colors cursor-pointer"
+                                            title={`${c.name} (${c.dialCode})`}
+                                          >
+                                            <span>{c.flag}</span>
+                                            <span>{c.dialCode}</span>
+                                          </button>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                              <div className="space-y-0.5">
+
+                              <div className="overflow-y-auto p-1.5 space-y-0.5 divide-y divide-white/[0.03]">
                                 {filteredCountries.length === 0 ? (
-                                  <div className="px-3 py-2 text-xs text-neutral-400 text-center">
-                                    No countries found
+                                  <div className="px-3 py-6 text-xs text-neutral-400 text-center">
+                                    No countries found matching &quot;{countrySearch}&quot;
                                   </div>
                                 ) : (
                                   filteredCountries.map((c) => (
@@ -738,8 +745,11 @@ function ContactPage() {
                                       <div className="flex items-center gap-2 truncate">
                                         <span className="text-sm">{c.flag}</span>
                                         <span className="truncate">{c.name}</span>
+                                        <span className="text-[10px] text-neutral-500 font-mono">
+                                          ({c.code})
+                                        </span>
                                       </div>
-                                      <span className="text-neutral-400 font-mono text-[11px] ml-2 shrink-0">
+                                      <span className="text-neutral-300 font-mono text-[11px] ml-2 shrink-0 font-medium">
                                         {c.dialCode}
                                       </span>
                                     </button>
